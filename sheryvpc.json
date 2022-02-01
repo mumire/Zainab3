@@ -1,0 +1,81 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      "vpccidr": {
+          "Description": "provide the cidr",
+          "Type": "String"
+      },
+      "pubsubaz": {
+          "Description": "provide the az",
+          "Type": "AWS::EC2::AvailabilityZone::Name"
+      },
+      "pubcidr": {
+          "Description": "provide the pubcidr",
+          "Type": "String"
+      },
+      "routeigwcidr": {
+          "Description": "provide the igwcidr",
+          "Type": "String"
+      }
+
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+      "vpc1": {
+        "Type": "AWS::EC2::VPC",
+        "Properties": {
+          "CidrBlock": { "Ref": "vpccidr" },
+          "Tags": [{ "Key": "Name", "Value":  "vpc1" }]
+        }
+      },
+      "pubsub": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "AvailabilityZone": { "Ref": "pubsubaz" },
+          "VpcId": { "Ref": "vpc1" },
+          "CidrBlock": { "Ref": "pubcidr" },
+          "Tags": [{ "Key": "Name", "Value":  "pubsub" }]
+        }
+      },
+      "routetpub": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": { "Ref": "vpc1" },
+          "Tags": [{ "Key": "Name", "Value":  "routetpub" }]
+        }
+      },
+      "pubigw": {
+        "Type": "AWS::EC2::InternetGateway",
+        "Properties": {
+          "Tags": [{ "Key": "Name", "Value":  "pubigw" }]
+        }
+      },
+      "AttachGateway": {
+        "Type": "AWS::EC2::VPCGatewayAttachment",
+        "Properties": {
+          "VpcId": { "Ref": "vpc1" },
+          "InternetGatewayId": { "Ref": "pubigw" }
+        }
+      },
+      "routeigw": {
+        "Type": "AWS::EC2::Route",
+        "Properties": {
+          "RouteTableId": { "Ref": "routetpub" },
+          "DestinationCidrBlock": { "Ref": "routeigwcidr" },
+          "GatewayId": { "Ref": "pubigw" }
+        }
+      }
+    },
+    "Outputs": {
+
+    }
+}
